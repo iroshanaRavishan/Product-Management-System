@@ -16,7 +16,11 @@
             <td>{{item.name}}</td>
             <td>{{item.type}}</td>
             <td>{{item.color}}</td>
-            <td>{{item.price | currency: 'USD'}}</td>
+            <td>{{item.price | currency: 'LKR '}}</td>
+            <td>
+              <button type="button" (click)="editProduct(item)">Edit</button>
+              <button type="button" (click)="deleteProduct(item)">Delete</button>
+            </td>
           </tr>
         </tbody>
       </table>
