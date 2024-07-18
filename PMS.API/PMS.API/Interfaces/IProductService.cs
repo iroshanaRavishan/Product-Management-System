@@ -4,7 +4,7 @@ namespace PMS.API.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetProductsAsync(int pageNumber, int pageSize);
+        Task<List<Product>> GetProductsAsync(int pageNumber, int pageSize, string sortBy, string sortDirection);
         Task<int> GetTotalProductsCountAsync();
     }
 }

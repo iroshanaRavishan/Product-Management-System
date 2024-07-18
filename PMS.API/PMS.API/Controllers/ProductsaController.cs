@@ -17,10 +17,11 @@ namespace PMS.API.Controllers
             this._pmsDbcontext = pmsDbContext;
             _productService = productService ?? throw new ArgumentNullException(nameof(productService)); ;
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetProducts(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc")
         {
-            var products = await _productService.GetProductsAsync(pageNumber, pageSize);
+            var products = await _productService.GetProductsAsync(pageNumber, pageSize, sortBy, sortDirection);
             var totalItems = await _productService.GetTotalProductsCountAsync();
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 

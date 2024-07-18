@@ -14,12 +14,39 @@ namespace PMS.API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync(int pageNumber, int pageSize)
+        public async Task<List<Product>> GetProductsAsync(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc")
         {
-            return await _context.products
-                                 .Skip((pageNumber - 1) * pageSize)
-                                 .Take(pageSize)
-                                 .ToListAsync();
+            var productsQuery = _context.products.AsQueryable();
+
+            // Apply sorting only if sortBy is provided
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        productsQuery = sortDirection == "desc"
+                            ? productsQuery.OrderByDescending(p => p.Name)
+                            : productsQuery.OrderBy(p => p.Name);
+                        break;
+                    case "type":
+                        productsQuery = sortDirection == "desc"
+                            ? productsQuery.OrderByDescending(p => p.Type)
+                            : productsQuery.OrderBy(p => p.Type);
+                        break;
+                    case "price":
+                        productsQuery = sortDirection == "desc"
+                            ? productsQuery.OrderByDescending(p => p.Price)
+                            : productsQuery.OrderBy(p => p.Price);
+                        break;
+                }
+            }
+
+            var products = await productsQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return products;
         }
 
         public async Task<int> GetTotalProductsCountAsync()
@@ -27,5 +54,5 @@ namespace PMS.API.Services
             return await _context.products.CountAsync();
         }
     }
-
+    
 }
