@@ -71,10 +71,7 @@ export class ProductsComponent implements OnInit {
 
   onPageSizeChange(size: any): void {
     this.pageSize = Number(size.target.value);
-    this.currentPage = 1;
-    this.loadedPages = 0;
-    this.products = [];
-    this.loadProducts();
+    this.tableRefresher();
   }
 
   editProduct(editableProduct: Product){
@@ -83,7 +80,7 @@ export class ProductsComponent implements OnInit {
         this.router.navigate(['/edit-product', editableProduct.id]);
       },
       error: (response) => {
-        console.log(response)
+        console.log(response);
       }
     })
   }
@@ -91,12 +88,12 @@ export class ProductsComponent implements OnInit {
   deleteProduct(deletableProduct: Product){
     this.productService.deleteProduct(deletableProduct).subscribe({
       next: (product) => {
-       this.ngOnInit(); 
+        this.tableRefresher();
       },
       error: (response) => {
-        console.log(response)
+        console.log(response);
       }
-    })
+    });
   }
 
   sort(field: string): void {
@@ -106,6 +103,10 @@ export class ProductsComponent implements OnInit {
       this.sortBy = field;
       this.sortDirection = 'asc';
     }
+    this.tableRefresher();
+  }
+
+  tableRefresher(){
     this.currentPage = 1;
     this.loadedPages = 0;
     this.products = [];

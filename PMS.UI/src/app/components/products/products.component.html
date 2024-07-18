@@ -39,7 +39,7 @@
   <div>
     <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
     <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
-    <li (click)="onPageChange(page)" *ngFor="let page of pages" [ngClass]="{'active': page ==currentPage}"> <a href="#">{{ page }}</a> </li>
+    <li (click)="onPageChange(page)" *ngFor="let page of pages" [ngClass]="{'active': page ==currentPage}"> <a>{{ page }}</a> </li>
     <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
     <button (click)="onPageChange(totalPages)" [disabled]="currentPage === totalPages">Last</button>
   </div>
