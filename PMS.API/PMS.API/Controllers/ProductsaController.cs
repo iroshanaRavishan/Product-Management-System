@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMS.API.Data;
+using PMS.API.Interfaces;
 using PMS.API.Models;
 
 namespace PMS.API.Controllers
@@ -10,17 +11,29 @@ namespace PMS.API.Controllers
     public class ProductsController : Controller
     {
         private readonly PMSDbContext _pmsDbcontext;
-        public ProductsController(PMSDbContext pmsDbContext)
+        private readonly IProductService _productService;
+        public ProductsController(PMSDbContext pmsDbContext, IProductService productService)
         {
-            this._pmsDbcontext = pmsDbContext;  
+            this._pmsDbcontext = pmsDbContext;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService)); ;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetProducts(int pageNumber, int pageSize)
         {
-            var products  = await _pmsDbcontext.products.ToListAsync();
+            var products = await _productService.GetProductsAsync(pageNumber, pageSize);
+            var totalItems = await _productService.GetTotalProductsCountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-            return Ok(products);
-            
+            var response = new
+            {
+                Data = products,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]

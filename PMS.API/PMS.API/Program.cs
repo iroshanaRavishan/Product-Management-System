@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PMS.API.Data;
+using PMS.API.Interfaces;
+using PMS.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PMSDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PMSDbConnectionString")));
 
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
