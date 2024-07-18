@@ -11,10 +11,14 @@ export class ProductsService {
   base_url: string = "https://localhost:7238";
 
   constructor(private http: HttpClient) { }
-  
-  getProducts(pageNumber: number, pageSize: number): Observable<any> {
-    return this.http.get<any>(`${this.base_url + '/api/products'}?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+
+getProducts(pageNumber: number, pageSize: number, sortBy?: string, sortDirection: string = 'asc'): Observable<any> {
+  let params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+  if (sortBy) {
+    params += `&sortBy=${sortBy}&sortDirection=${sortDirection}`;
   }
+  return this.http.get<any>(`${this.base_url}/api/products${params}`);
+}
 
   addProduct(newProduct: Product): Observable<Product>{
     newProduct.id = '00000000-0000-0000-0000-000000000000';
@@ -32,5 +36,4 @@ export class ProductsService {
   deleteProduct(product: Product): Observable<Product> {
     return this.http.delete<Product>(this.base_url + `/api/products/${product.id}`)
   }
-
 }

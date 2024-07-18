@@ -20,19 +20,19 @@ export class ProductsComponent implements OnInit {
   loadedPages: number = 0;
   pages: number[] = [];
   isLoading = false;
+  sortBy: string = '';
+  sortDirection: string = 'asc';
 
-  constructor( private productService: ProductsService, private router: Router) { }
+  constructor(private productService: ProductsService, private router: Router) { }
 
   get paginatedData() {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-
     return this.products.slice(start, end);
   }
 
-
   ngOnInit(): void {
-   this.loadProducts();
+    this.loadProducts();
   }
 
   loadProducts(): void {
@@ -40,9 +40,9 @@ export class ProductsComponent implements OnInit {
       this.isLoading = true;
       const pagesToLoad = Math.ceil((this.currentPage * this.pageSize) / this.pageSize);
       const requests = [];
-  
+
       for (let i = this.loadedPages + 1; i <= pagesToLoad; i++) {
-        requests.push(this.productService.getProducts(i, this.pageSize).pipe(
+        requests.push(this.productService.getProducts(i, this.pageSize, this.sortBy, this.sortDirection).pipe(
           tap(data => {
             this.totalItems = data.totalItems;
             this.totalPages = data.totalPages;
@@ -50,7 +50,7 @@ export class ProductsComponent implements OnInit {
           })
         ));
       }
-  
+
       forkJoin(requests).subscribe(results => {
         results.forEach(data => {
           this.products = this.products.concat(data.data);
@@ -99,4 +99,16 @@ export class ProductsComponent implements OnInit {
     })
   }
 
+  sort(field: string): void {
+    if (this.sortBy === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = field;
+      this.sortDirection = 'asc';
+    }
+    this.currentPage = 1;
+    this.loadedPages = 0;
+    this.products = [];
+    this.loadProducts();
+  }
 }
