@@ -11,6 +11,7 @@ import { ProductsService } from 'src/app/services/products.service';
 export class AddProductComponent implements OnInit {
 
   productId!: string | null;
+  pageType = 'Add New';
   newProduct: Product = {
     id: '',
     name:'',
@@ -24,6 +25,7 @@ export class AddProductComponent implements OnInit {
   ngOnInit(): void {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
+      this.pageType = 'Update';
       this.productService.getProduct(this.productId).subscribe((product: Product) => {
         this.newProduct= {...product};
       });

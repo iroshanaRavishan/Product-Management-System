@@ -11,9 +11,9 @@ export class ProductsService {
   base_url: string = "https://localhost:7238";
 
   constructor(private http: HttpClient) { }
-
-  getAllProducts() : Observable <Product[]> {
-    return this.http.get<Product[]>(this.base_url + '/api/products');
+  
+  getProducts(pageNumber: number, pageSize: number): Observable<any> {
+    return this.http.get<any>(`${this.base_url + '/api/products'}?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   addProduct(newProduct: Product): Observable<Product>{

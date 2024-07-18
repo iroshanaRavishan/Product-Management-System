@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Product } from 'src/app/models/Product.model';
 import { ProductsService } from 'src/app/services/products.service';
+import { forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products',
@@ -11,18 +13,68 @@ import { ProductsService } from 'src/app/services/products.service';
 export class ProductsComponent implements OnInit {
 
   products: Product[] = [];
+  totalItems: number = 0;
+  pageSize: number = 10;
+  currentPage: number = 1;
+  totalPages: number = 0;
+  loadedPages: number = 0;
+  pages: number[] = [];
+  isLoading = false;
 
   constructor( private productService: ProductsService, private router: Router) { }
 
+  get paginatedData() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+
+    return this.products.slice(start, end);
+  }
+
+
   ngOnInit(): void {
-    this.productService.getAllProducts().subscribe( {
-       next: (products) => {
-        this.products = products
-       },
-       error: (reponse) => {
-        console.log(reponse)
-       }
-    })
+   this.loadProducts();
+  }
+
+  loadProducts(): void {
+    if (this.loadedPages < this.currentPage) {
+      this.isLoading = true;
+      const pagesToLoad = Math.ceil((this.currentPage * this.pageSize) / this.pageSize);
+      const requests = [];
+  
+      for (let i = this.loadedPages + 1; i <= pagesToLoad; i++) {
+        requests.push(this.productService.getProducts(i, this.pageSize).pipe(
+          tap(data => {
+            this.totalItems = data.totalItems;
+            this.totalPages = data.totalPages;
+            this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+          })
+        ));
+      }
+  
+      forkJoin(requests).subscribe(results => {
+        results.forEach(data => {
+          this.products = this.products.concat(data.data);
+        });
+        this.loadedPages = pagesToLoad;
+        this.isLoading = false;
+      }, error => {
+        this.isLoading = false;
+        console.error('Error loading products', error);
+      });
+    }
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadProducts();
+  }
+
+  onPageSizeChange(size: any): void {
+    this.pageSize = Number(size.target.value);
+    this.currentPage = 1;
+    this.loadedPages = 0;
+    this.products = [];
+    this.loadProducts();
   }
 
   editProduct(editableProduct: Product){

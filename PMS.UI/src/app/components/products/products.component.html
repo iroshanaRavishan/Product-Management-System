@@ -3,17 +3,16 @@
     <table class="table" *ngIf="products && products.length > 0">
         <thead>
           <tr>
-            <th scope="col">Id#</th>
-            <th scope="col">Name</th>
+            <th scope="col">Name <button>sort</button> </th>
             <th scope="col">Type</th>
             <th scope="col">Color</th>
             <th scope="col">Price</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of products">
-            <td>{{item.id}}</td>
-            <td>{{item.name}}</td>
+          <tr *ngFor="let item of paginatedData; index as i">
+            <td>{{i+1}}. {{item.name}}</td>
             <td>{{item.type}}</td>
             <td>{{item.color}}</td>
             <td>{{item.price | currency: 'LKR '}}</td>
@@ -24,5 +23,25 @@
           </tr>
         </tbody>
       </table>
-      <p *ngIf="!products || products.length == 0">* no product found...!</p>
+      <p *ngIf="!products || products.length == 0">No Product Found...!</p>
+</div>
+
+<div *ngIf="isLoading" class="spinner"></div>
+
+<div *ngIf="products.length && !isLoading">
+  <div class="pagination">
+    <div>
+      <label for="pageSize">Items per page:</label>
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange($event)">
+        <option *ngFor="let size of [2,4,6,8,10,12]" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+    <div>
+      <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
+      <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <li (click)="onPageChange(page)" *ngFor="let page of pages" [ngClass]="{'active': page ==currentPage}"> <a href="#">{{ page }}</a> </li>
+      <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+      <button (click)="onPageChange(totalPages)" [disabled]="currentPage === totalPages">Last</button>
+    </div>
+  </div>
 </div>
