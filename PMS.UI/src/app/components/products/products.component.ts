@@ -21,7 +21,9 @@ export class ProductsComponent implements OnInit {
   pages: number[] = [];
   isLoading = false;
   sortBy: string = '';
-  sortDirection: string = 'asc';
+  sortDirection: string = '';
+  showMenu: boolean = false;
+  selectedPageSize: number = this.pageSize;
 
   constructor(private productService: ProductsService, private router: Router) { }
 
@@ -70,7 +72,7 @@ export class ProductsComponent implements OnInit {
   }
 
   onPageSizeChange(size: any): void {
-    this.pageSize = Number(size.target.value);
+    this.pageSize = Number(size);
     this.tableRefresher();
   }
 
@@ -111,5 +113,17 @@ export class ProductsComponent implements OnInit {
     this.loadedPages = 0;
     this.products = [];
     this.loadProducts();
+  }
+
+  toggleDropdown() {
+    this.showMenu = !this.showMenu;
+  }
+
+  selectPageSize(size: number) {
+    console.log(size)
+    this.pageSize = size;
+    this.selectedPageSize = size;
+    this.showMenu = false;
+    this.onPageSizeChange(size);
   }
 }

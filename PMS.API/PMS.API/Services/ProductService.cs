@@ -33,6 +33,11 @@ namespace PMS.API.Services
                             ? productsQuery.OrderByDescending(p => p.Type)
                             : productsQuery.OrderBy(p => p.Type);
                         break;
+                    case "color":
+                        productsQuery = sortDirection == "desc"
+                            ? productsQuery.OrderByDescending(p => p.Color)
+                            : productsQuery.OrderBy(p => p.Name);
+                        break;
                     case "price":
                         productsQuery = sortDirection == "desc"
                             ? productsQuery.OrderByDescending(p => p.Price)
