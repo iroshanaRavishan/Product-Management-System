@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from 'src/app/models/Product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { forkJoin } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { debounceTime, switchMap, filter, distinctUntilChanged, tap, map } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Chip } from 'src/app/models/Chip.model';
 
 @Component({
   selector: 'app-products',
@@ -24,9 +27,34 @@ export class ProductsComponent implements OnInit {
   sortDirection: string = '';
   showMenu: boolean = false;
   selectedPageSize: number = this.pageSize;
+  searchActionType: string = 'search';
+  showSuggestionsFlag = false;
+  searchControl = new FormControl();
+  suggestions: string[] = [];
+  formattedSuggestions: { value: string, html: SafeHtml }[] = [];
+  selectedProduct: Product | null = null;
+  searchTerm: string = '';
+  chips : Chip[] =[];
 
-  constructor(private productService: ProductsService, private router: Router) { }
-
+  constructor(private productService: ProductsService, private router: Router, private sanitizer: DomSanitizer) {
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      map(value => value.trim()),
+      tap(value => {
+        if (!value || value.length === 0) {
+          this.suggestions = [];
+          this.formattedSuggestions = [];
+        }
+      }),
+      filter(value => value && value.length > 0),
+      switchMap(value => this.productService.getSuggestions(value))
+    ).subscribe(suggestions => {
+      this.suggestions = suggestions.length ? suggestions : ['No Product'];
+      this.updateFormattedSuggestions();
+    });
+  }
+  
   get paginatedData() {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
@@ -44,7 +72,7 @@ export class ProductsComponent implements OnInit {
       const requests = [];
 
       for (let i = this.loadedPages + 1; i <= pagesToLoad; i++) {
-        requests.push(this.productService.getProducts(i, this.pageSize, this.sortBy, this.sortDirection).pipe(
+        requests.push(this.productService.getProducts(i, this.pageSize, this.sortBy, this.sortDirection, this.searchTerm).pipe(
           tap(data => {
             this.totalItems = data.totalItems;
             this.totalPages = data.totalPages;
@@ -120,10 +148,70 @@ export class ProductsComponent implements OnInit {
   }
 
   selectPageSize(size: number) {
-    console.log(size)
     this.pageSize = size;
     this.selectedPageSize = size;
     this.showMenu = false;
     this.onPageSizeChange(size);
+  }
+
+  private updateFormattedSuggestions(): void {
+    const searchTerm = this.searchControl.value.trim().toLowerCase();
+    this.formattedSuggestions = this.suggestions.map(suggestion => {
+      const highlighted = suggestion.replace(new RegExp(searchTerm, 'gi'), match => `<b>${match}</b>`);
+      return { value: suggestion, html: this.sanitizer.bypassSecurityTrustHtml(highlighted) };
+    });
+  }
+
+  onSelectSearchItem(value: any) {
+    this.searchTerm = value;
+    this.searchControl.setValue(this.searchTerm)
+    this.currentPage = 1;
+    this.loadedPages = 0;
+    this.products = [];
+    this.loadProducts();
+    this.showSuggestionsFlag = false;
+    this.searchActionType = 'close'
+    const searchChipIndex = this.chips.findIndex(chip => chip.type === 'search');
+    if (searchChipIndex >= 0) {
+      this.chips[searchChipIndex] = { name: this.searchTerm, type: 'search' };
+    } else {
+      this.chips.push({ name: this.searchTerm, type: 'search' });
+    }
+  }
+
+  showSuggestions() {
+    this.showSuggestionsFlag = true;
+  }
+
+  stopPropagation(event: Event) {
+    event.stopPropagation();
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event) {
+    this.showSuggestionsFlag = false;
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchControl.setValue('');
+    this.pageSize = 10;
+    // this.tableRefresher();
+    this.searchActionType = 'search';
+  }
+
+  onInputChange(event: Event){
+    if (this.searchControl.value.length !== 0){
+      this.searchActionType = 'close'
+    }
+  }
+
+  removeChip(chip: Chip): void {
+    const index = this.chips.indexOf(chip);
+    if (index >= 0) {
+      this.chips.splice(index, 1);
+      this.clearSearch();
+      this.tableRefresher();
+    }
   }
 }

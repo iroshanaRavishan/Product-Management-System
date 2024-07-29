@@ -12,10 +12,13 @@ export class ProductsService {
 
   constructor(private http: HttpClient) { }
 
-getProducts(pageNumber: number, pageSize: number, sortBy?: string, sortDirection: string = 'asc'): Observable<any> {
+getProducts(pageNumber: number, pageSize: number, sortBy?: string, sortDirection: string = 'asc', searchTerm?: string): Observable<any> {
   let params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
   if (sortBy) {
     params += `&sortBy=${sortBy}&sortDirection=${sortDirection}`;
+  }
+  if (searchTerm) {
+    params += `&name=${searchTerm}`;
   }
   return this.http.get<any>(`${this.base_url}/api/products${params}`);
 }
@@ -35,5 +38,9 @@ getProducts(pageNumber: number, pageSize: number, sortBy?: string, sortDirection
   
   deleteProduct(product: Product): Observable<Product> {
     return this.http.delete<Product>(this.base_url + `/api/products/${product.id}`)
+  }
+
+  getSuggestions(query: string): Observable<string[]> {
+    return this.http.get<string[]>(this.base_url + `/api/products/search?query=${query}`);
   }
 }

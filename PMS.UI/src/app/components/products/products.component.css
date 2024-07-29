@@ -118,7 +118,9 @@
 
 .select:hover,
 .select:focus,
-button:focus {
+button:focus,
+input:focus {
+  outline: none;
   box-shadow: 0 0 0 0.2rem rgba(241, 241, 241, 0.25);
 }
 
@@ -142,7 +144,6 @@ button:focus {
   margin: 0;
   padding: 0;
   list-style: none;
-  z-index: 1000;
 }
 
 .menu.show {
@@ -169,4 +170,126 @@ label {
   font-weight: 600;
   font-size: 1rem;
   color: #333;
+}
+
+.search-input::placeholder {
+  color: #9e9e9e; 
+  opacity: 1; 
+  font-size: 15px; 
+}
+
+.top-line {
+  display: flex;
+  justify-content: space-between;
+  margin: 2em 0;
+}
+
+.search-box {
+  margin-right: 0;
+  padding-right: 0;
+  align-items: center;
+  min-width: 350px;
+  max-width: 400px;
+  position: relative;
+  max-height: 40px;
+  min-height: 30px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+input{
+  width: 100%;
+  height: 100%;
+  display: block;
+  flex: 1;
+  border-radius: 25%;
+  height: 50px;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 18px;
+  color: #e2e2e2;
+  padding: 8px 20px 8px 20px;
+}
+
+.search-input {
+  font-size: 16px;
+  color: #696969;
+  font-weight: 500;
+  border: 1px solid #ced4da;
+  border-radius: 40px; 
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+  box-shadow: 0 2px 4px 1px rgb(194, 194, 194);
+}
+
+.search-button {
+  background: none;
+  position: absolute;
+  margin-top: 0.3em;
+  right: 1em;
+  width: 50px;
+  height: 100%;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.search-button:disabled {
+  color: #aaa;
+  border-color: #ddd;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.result-box ul{
+  background: #f5f5f5;
+  z-index: 10;
+  list-style-type: none;
+  margin: 0 8px;
+  padding: 0;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0px 20px 0px rgb(194, 194, 194);
+}
+
+.result-box ul li {
+  list-style: none;
+  border-radius: 3px;
+  padding: 15px 10px;
+  cursor: pointer;
+  color: #424242;
+  cursor: pointer;
+  letter-spacing: .4px;
+}
+
+.result-box li:hover {
+  background-color: #e0e0e0;
+}
+
+.disabled {
+  pointer-events: none;
+  color: grey;
+}
+
+.custom-chip {
+  border-radius: 16px;
+  margin: 4px;
+  padding: 0 8px;
+  background-color: #dbdbdb;
+}
+
+.custom-chip .mat-icon {
+  cursor: pointer;
+}
+
+.mat-container {
+  padding: 0px 10px;
 }
