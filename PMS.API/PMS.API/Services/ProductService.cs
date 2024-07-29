@@ -14,7 +14,7 @@ namespace PMS.API.Services
             _context = context;
         }
 
-        public async Task<List<Product>> GetProductsAsync(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc")
+        public async Task<List<Product>> GetProductsAsync(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc", string name = null)
         {
             var productsQuery = _context.products.AsQueryable();
 
@@ -36,7 +36,7 @@ namespace PMS.API.Services
                     case "color":
                         productsQuery = sortDirection == "desc"
                             ? productsQuery.OrderByDescending(p => p.Color)
-                            : productsQuery.OrderBy(p => p.Name);
+                            : productsQuery.OrderBy(p => p.Color);
                         break;
                     case "price":
                         productsQuery = sortDirection == "desc"
@@ -58,6 +58,14 @@ namespace PMS.API.Services
         {
             return await _context.products.CountAsync();
         }
+
+        public IEnumerable<string> GetSuggestions(string query)
+        {
+            return _context.products
+                .Where(p => p.Name.Contains(query))
+                .Select(p => p.Name)
+                .Take(10)
+                .ToList();
+        }
     }
-    
 }

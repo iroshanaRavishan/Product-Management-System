@@ -19,9 +19,35 @@ namespace PMS.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc")
+        public async Task<IActionResult> GetProducts(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc", string name = null)
         {
-            var products = await _productService.GetProductsAsync(pageNumber, pageSize, sortBy, sortDirection);
+            if (name != null) {
+                var query = _pmsDbcontext.products.Where(x => x.Name.ToLower() == name.ToLower());
+
+                var totalSeachedItems = await query.CountAsync();
+                var totalSearchedPages = (int)Math.Ceiling((double)totalSeachedItems / pageSize);
+
+                var searchedProducts = await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var searchedResponse = new
+                {
+                    Data = searchedProducts,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalItems = totalSeachedItems,
+                    TotalPages = totalSearchedPages
+                };
+
+                if (searchedProducts == null || searchedProducts.Count == 0)
+                {
+                    return NotFound();
+                }
+                return Ok(searchedResponse);
+            }
+            var products = await _productService.GetProductsAsync(pageNumber, pageSize, sortBy, sortDirection, name);
             var totalItems = await _productService.GetTotalProductsCountAsync();
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
@@ -35,6 +61,18 @@ namespace PMS.API.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("search")]
+        public IActionResult Search([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query cannot be empty or whitespace.");
+            }
+
+            var suggestions = _productService.GetSuggestions(query);
+            return Ok(suggestions);
         }
 
         [HttpPost]
