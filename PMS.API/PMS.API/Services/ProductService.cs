@@ -2,15 +2,18 @@
 using PMS.API.Data;
 using PMS.API.Interfaces;
 using PMS.API.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PMS.API.Services
 {
     public class ProductService : IProductService
     {
+        private readonly PMSDbContext _pmsDbcontext;
         private readonly PMSDbContext _context;
 
-        public ProductService(PMSDbContext context)
+        public ProductService(PMSDbContext pmsDbContext, PMSDbContext context)
         {
+            this._pmsDbcontext = pmsDbContext;
             _context = context;
         }
 
@@ -18,33 +21,7 @@ namespace PMS.API.Services
         {
             var productsQuery = _context.products.AsQueryable();
 
-            // Apply sorting only if sortBy is provided
-            if (!string.IsNullOrEmpty(sortBy))
-            {
-                switch (sortBy.ToLower())
-                {
-                    case "name":
-                        productsQuery = sortDirection == "desc"
-                            ? productsQuery.OrderByDescending(p => p.Name)
-                            : productsQuery.OrderBy(p => p.Name);
-                        break;
-                    case "type":
-                        productsQuery = sortDirection == "desc"
-                            ? productsQuery.OrderByDescending(p => p.Type)
-                            : productsQuery.OrderBy(p => p.Type);
-                        break;
-                    case "color":
-                        productsQuery = sortDirection == "desc"
-                            ? productsQuery.OrderByDescending(p => p.Color)
-                            : productsQuery.OrderBy(p => p.Color);
-                        break;
-                    case "price":
-                        productsQuery = sortDirection == "desc"
-                            ? productsQuery.OrderByDescending(p => p.Price)
-                            : productsQuery.OrderBy(p => p.Price);
-                        break;
-                }
-            }
+            ApplySorting(ref productsQuery, sortBy, sortDirection);
 
             var products = await productsQuery
                 .Skip((pageNumber - 1) * pageSize)
@@ -52,6 +29,38 @@ namespace PMS.API.Services
                 .ToListAsync();
 
             return products;
+        }
+
+        public async Task<(List<Product> Products, int TotalCount)> GetSearchedProductsAsync(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc", string name = null)
+        {
+            var productsQuery = _pmsDbcontext.products.Where(x => x.Name.ToLower() == name.ToLower());
+
+            int totalSearchedItems = await productsQuery.CountAsync();
+
+            ApplySorting(ref productsQuery, sortBy, sortDirection);
+
+            var products = await productsQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (products, totalSearchedItems);
+        }
+
+        private void ApplySorting(ref IQueryable<Product> productsQuery, string sortBy, string sortDirection)
+        {
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                bool descending = sortDirection.ToLower() == "desc";
+                productsQuery = sortBy.ToLower() switch
+                {
+                    "name" => descending ? productsQuery.OrderByDescending(p => p.Name) : productsQuery.OrderBy(p => p.Name),
+                    "type" => descending ? productsQuery.OrderByDescending(p => p.Type) : productsQuery.OrderBy(p => p.Type),
+                    "color" => descending ? productsQuery.OrderByDescending(p => p.Color) : productsQuery.OrderBy(p => p.Color),
+                    "price" => descending ? productsQuery.OrderByDescending(p => p.Price) : productsQuery.OrderBy(p => p.Price),
+                    _ => productsQuery
+                };
+            }
         }
 
         public async Task<int> GetTotalProductsCountAsync()

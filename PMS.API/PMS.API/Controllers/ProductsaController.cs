@@ -22,22 +22,15 @@ namespace PMS.API.Controllers
         public async Task<IActionResult> GetProducts(int pageNumber, int pageSize, string sortBy = null, string sortDirection = "asc", string name = null)
         {
             if (name != null) {
-                var query = _pmsDbcontext.products.Where(x => x.Name.ToLower() == name.ToLower());
-
-                var totalSeachedItems = await query.CountAsync();
-                var totalSearchedPages = (int)Math.Ceiling((double)totalSeachedItems / pageSize);
-
-                var searchedProducts = await query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                var (searchedProducts, totalSearchedItems) = await _productService.GetSearchedProductsAsync(pageNumber, pageSize, sortBy, sortDirection, name);
+                var totalSearchedPages = (int)Math.Ceiling((double)totalSearchedItems / pageSize);
 
                 var searchedResponse = new
                 {
                     Data = searchedProducts,
                     PageNumber = pageNumber,
                     PageSize = pageSize,
-                    TotalItems = totalSeachedItems,
+                    TotalItems = totalSearchedItems,
                     TotalPages = totalSearchedPages
                 };
 
