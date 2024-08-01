@@ -35,6 +35,7 @@ export class ProductsComponent implements OnInit {
   selectedProduct: Product | null = null;
   searchTerm: string = '';
   chips : Chip[] =[];
+  sortChipIndex: number = 0;
 
   constructor(private productService: ProductsService, private router: Router, private sanitizer: DomSanitizer) {
     this.searchControl.valueChanges.pipe(
@@ -71,8 +72,11 @@ export class ProductsComponent implements OnInit {
       const pagesToLoad = Math.ceil((this.currentPage * this.pageSize) / this.pageSize);
       const requests = [];
 
+      const filteredItemName = this.getChipNameByType('search', this.searchTerm);
+      const sortedItemName = this.getChipNameByType('sort', this.searchTerm);
+
       for (let i = this.loadedPages + 1; i <= pagesToLoad; i++) {
-        requests.push(this.productService.getProducts(i, this.pageSize, this.sortBy, this.sortDirection, this.searchTerm).pipe(
+        requests.push(this.productService.getProducts(i, this.pageSize, sortedItemName, this.sortDirection, filteredItemName).pipe(
           tap(data => {
             this.totalItems = data.totalItems;
             this.totalPages = data.totalPages;
@@ -127,6 +131,7 @@ export class ProductsComponent implements OnInit {
   }
 
   sort(field: string): void {
+    this.updateChips(field, 'sort');
     if (this.sortBy === field) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -168,15 +173,24 @@ export class ProductsComponent implements OnInit {
     this.currentPage = 1;
     this.loadedPages = 0;
     this.products = [];
-    this.loadProducts();
     this.showSuggestionsFlag = false;
     this.searchActionType = 'close'
-    const searchChipIndex = this.chips.findIndex(chip => chip.type === 'search');
-    if (searchChipIndex >= 0) {
-      this.chips[searchChipIndex] = { name: this.searchTerm, type: 'search' };
+    this.updateChips(this.searchTerm, 'search');
+    this.loadProducts();
+  }
+
+  updateChips(field: string, type: string): void {
+    const chipIndex = this.chips.findIndex(chip => chip.type === type);
+    if (chipIndex >= 0) {
+      this.chips[chipIndex] = { name: field, type: type };
     } else {
-      this.chips.push({ name: this.searchTerm, type: 'search' });
+      this.chips.push({ name: field, type: type });
     }
+  }
+
+  getChipNameByType(type: string, defaultValue: string): string {
+    this.sortChipIndex = this.chips.findIndex(chip => chip.type === type);
+    return this.sortChipIndex >= 0 ? this.chips[this.sortChipIndex].name : defaultValue;
   }
 
   showSuggestions() {
@@ -195,7 +209,7 @@ export class ProductsComponent implements OnInit {
   clearSearch(): void {
     this.searchTerm = '';
     this.searchControl.setValue('');
-    this.pageSize = 10;
+    this.pageSize = this.selectedPageSize;
     // this.tableRefresher();
     this.searchActionType = 'search';
   }

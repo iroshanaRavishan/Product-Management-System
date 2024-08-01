@@ -7,9 +7,9 @@
         <button class="search-button" (click)="clearSearch()"  [disabled]="!searchControl.value?.length"><mat-icon>{{searchActionType}}</mat-icon></button>
       </div>
       <div class="mat-container">
-        <mat-chip-list >
+        <mat-chip-list>
           <mat-chip *ngFor="let chip of chips" [removable]="true" (removed)="removeChip(chip)" class="custom-chip">
-            <span >{{chip.name}}</span>
+            <span>{{chip.name | uppercase}}</span>
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip>
         </mat-chip-list>
@@ -34,8 +34,8 @@
               <div class="inner-button">
                 <label>Name</label>
                 <div (click)="sort('name')" class="sorting-button">
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='name' }">arrow_drop_up</mat-icon>
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='name' }"> arrow_drop_down </mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='name' && sortChipIndex >= 0}">arrow_drop_up</mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='name' && sortChipIndex >= 0}"> arrow_drop_down </mat-icon>
                 </div>
               </div>
           </th>
@@ -43,8 +43,8 @@
               <div class="inner-button">
                 <label>Type</label>
                 <div (click)="sort('type')" class="sorting-button">
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='type' }">arrow_drop_up</mat-icon>
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='type'  }"> arrow_drop_down </mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='type' && sortChipIndex >= 0}">arrow_drop_up</mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='type' && sortChipIndex >= 0}"> arrow_drop_down </mat-icon>
                 </div>
               </div>
           </th>
@@ -52,8 +52,8 @@
             <div class="inner-button">
               <label>Color</label>
               <div (click)="sort('color')" class="sorting-button">
-                <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='color' }">arrow_drop_up</mat-icon>
-                <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='color'  }"> arrow_drop_down </mat-icon>
+                <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='color' && sortChipIndex >= 0}">arrow_drop_up</mat-icon>
+                <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='color' && sortChipIndex >= 0}"> arrow_drop_down </mat-icon>
               </div>
             </div>
         </th>
@@ -61,8 +61,8 @@
               <div class="inner-button">
                 <label>Price</label>
                 <div (click)="sort('price')" class="sorting-button">
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'asc' && sortBy =='price' }">arrow_drop_up</mat-icon>
-                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection == 'desc' && sortBy =='price'  }"> arrow_drop_down </mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection === 'asc' && sortBy === 'price' && sortChipIndex >= 0}">arrow_drop_up</mat-icon>
+                  <mat-icon class="arrow" [ngClass]="{'active-arrow': sortDirection === 'desc' && sortBy === 'price' && sortChipIndex >= 0}">arrow_drop_down</mat-icon>
                 </div>
               </div>
           </th>
@@ -110,7 +110,7 @@
             <div class="caret"></div>
           </div>
           <ul class="menu" [ngClass]="{ 'show': showMenu }">
-            <li *ngFor="let size of [5, 10, 15, 20]" (click)="selectPageSize(size)" [ngClass]="{ 'active': size === selectedPageSize }">
+            <li *ngFor="let size of [2, 5, 10, 15, 20]" (click)="selectPageSize(size)" [ngClass]="{ 'active': size === selectedPageSize }">
               {{ size }}
             </li>
           </ul>
