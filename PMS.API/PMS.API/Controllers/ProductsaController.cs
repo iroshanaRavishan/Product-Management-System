@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMS.API.Data;
 using PMS.API.Interfaces;
@@ -8,6 +9,7 @@ namespace PMS.API.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly PMSDbContext _pmsDbcontext;
