@@ -16,8 +16,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(email: string, password: string): Observable<UserResponse>{ 
-    return this.http.post<UserResponse>(`${this.base_url}/api/auth/login`, { email, password }).pipe(
+  login(email: string, password: string): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.base_url}/api/auth/login`, { email, password }, { withCredentials: true }).pipe(
       tap(() => {
         this.loggedIn.next(true);
       }),

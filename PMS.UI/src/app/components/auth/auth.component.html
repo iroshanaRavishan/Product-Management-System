@@ -3,10 +3,10 @@
         <form class="form">
           <h2>Register</h2>
           <div class="form-group">
-            <label for="email">Email</label> <input type="email" id="email">
+            <label for="email">Email</label> <input type="SignUpemail" id="email">
           </div>
           <div class="form-group">
-            <label for="password">Password</label> <input type="password" id="password">
+            <label for="password">Password</label> <input type="SignUppassword" id="password">
           </div>
           <div class="form-group">
             <label for="confirmPassword">Confirm Password</label> <input type="password" id="confirmPassword">
@@ -19,10 +19,10 @@
           <h2>Login</h2>
           <div *ngIf="error" class="error-message">{{ error }}</div>
           <div class="form-group">
-            <label for="email">Email</label> <input type="email" id="email" formControlName="email">
+            <label for="email">Email</label> <input type="email" id="LoginEmail" formControlName="email">
           </div>
           <div class="form-group">
-            <label for="password">Password</label> <input type="password" id="password" formControlName="password">
+            <label for="password">Password</label> <input type="LoginPassword" id="password" formControlName="password">
           </div>
           <button type="button" (click)="onSubmit()">Login</button>
           <div *ngIf="isLoading" class="loading-spinner"></div>
