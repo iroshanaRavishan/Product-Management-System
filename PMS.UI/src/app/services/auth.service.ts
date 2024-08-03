@@ -27,4 +27,12 @@ export class AuthService {
       })
     );
   }
+
+  signUp(firstName: string, lastName: string, email: string, password: string, confirmPassword: string): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.base_url}/api/auth/register`, { firstName, lastName, email, password ,confirmPassword }, { withCredentials: true }).pipe(
+      tap((res) => {
+        
+      })
+    );
+  }
 }

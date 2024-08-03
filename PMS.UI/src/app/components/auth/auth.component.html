@@ -1,33 +1,92 @@
-<div class="container">
-    <div class="auth-container">
-        <form class="form">
-          <h2>Register</h2>
-          <div class="form-group">
-            <label for="email">Email</label> <input type="SignUpemail" id="email">
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label> <input type="SignUppassword" id="password">
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label> <input type="password" id="confirmPassword">
-          </div>
-          <button type="submit" >Register</button>
-        </form>
+<div class="container"  [class.active]="isActive">
+  <div class="form-container sign-up">
+    <form class="form" [formGroup]="signUpForm">
+      <h1>Create Account</h1>
+      <input type="text" id="firstName" formControlName="firstName" placeholder="First Name">
+      <div *ngIf="signUpForm.get('firstName')!.invalid && signUpForm.get('firstName')!.touched" class="error-message">
+        <div *ngIf="signUpForm.get('firstName')!.errors?.['required']">*First Name is required</div>
+        <div *ngIf="signUpForm.get('firstName')!.errors?.['minlength']">
+          *First Name must be at least {{ signUpForm.get('firstName')!.errors?.['minlength']?.requiredLength }} characters long
+        </div>
       </div>
-      <div class="auth-container">
-        <form class="form" [formGroup]="authForm">
-          <h2>Login</h2>
-          <div *ngIf="error" class="error-message">{{ error }}</div>
-          <div class="form-group">
-            <label for="email">Email</label> <input type="email" id="LoginEmail" formControlName="email">
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label> <input type="LoginPassword" id="password" formControlName="password">
-          </div>
-          <button type="button" (click)="onSubmit()">Login</button>
-          <div *ngIf="isLoading" class="loading-spinner"></div>
-        </form>
+
+      <input type="text" id="lastName" formControlName="lastName" placeholder="Last Name">
+      <div *ngIf="signUpForm.get('lastName')!.invalid && signUpForm.get('lastName')!.touched" class="error-message">
+        <div *ngIf="signUpForm.get('lastName')!.errors?.['required']">*Last Name is required</div>
+        <div *ngIf="signUpForm.get('lastName')!.errors?.['minlength']">
+          *Last Name must be at least {{ signUpForm.get('lastName')!.errors?.['minlength']?.requiredLength }} characters long
+        </div>
       </div>
+
+      <input type="email" id="email" formControlName="email" placeholder="Email">
+      <div *ngIf="signUpForm.get('email')!.invalid && signUpForm.get('email')!.touched" class="error-message">
+        <div *ngIf="signUpForm.get('email')!.errors?.['required']">*Email is required</div>
+        <div *ngIf="signUpForm.get('email')!.errors?.['email']">*Invalid email format</div>
+        <div *ngIf="signUpForm.get('email')!.errors?.['minlength']">
+          *Email must be at least {{ signUpForm.get('email')!.errors?.['minlength']?.requiredLength }} characters long
+        </div>
+      </div>
+
+      <input type="password" id="password" formControlName="password" placeholder="Password">
+      <div *ngIf="signUpForm.get('password')!.invalid && signUpForm.get('password')!.touched" class="error-message">
+        <div *ngIf="signUpForm.get('password')!.errors?.['required']">*Password is required</div>
+        <div *ngIf="signUpForm.get('password')!.errors?.['minlength']">
+          *Password must be at least {{ signUpForm.get('password')!.errors?.['minlength']?.requiredLength }} characters long
+        </div>
+      </div>
+
+      <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirm Password">
+      <div *ngIf="signUpForm.get('confirmPassword')!.invalid && signUpForm.get('confirmPassword')!.touched" class="error-message">
+        <div *ngIf="signUpForm.get('confirmPassword')!.errors?.['required']">*Confirm Password is required</div>
+        <div *ngIf="signUpForm.get('confirmPassword')!.errors?.['mustMatch']">*Passwords must match</div>
+      </div>
+      <button type="button" (click)="onSignUp()">Sign Up</button>
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+    </form>
+  </div>
+
+  <div class="form-container sign-in">
+    <form class="form" [formGroup]="loginForm">
+        <h1>Sign In</h1>
+        <input type="email" id="LoginEmail" formControlName="email" placeholder="Email">
+        <div *ngIf="loginForm.get('email')!.invalid && loginForm.get('email')!.touched" class="error-message">
+          <div *ngIf="loginForm.get('email')!.errors?.['required']">*Email is required</div>
+          <div *ngIf="loginForm.get('email')!.errors?.['email']">*Invalid email format</div>
+          <div *ngIf="loginForm.get('email')!.errors?.['minlength']">
+            *Email must be at least {{ loginForm.get('email')!.errors?.['minlength']?.requiredLength }} characters long
+          </div>
+        </div>
+        
+        <input type="password" id="password" formControlName="password">
+        <div *ngIf="loginForm.get('password')!.invalid && loginForm.get('password')!.touched" class="error-message">
+          <div *ngIf="loginForm.get('password')!.errors?.['required']">*Password is required</div>
+          <div *ngIf="loginForm.get('password')!.errors?.['minlength']">
+            *Password must be at least {{ loginForm.get('password')!.errors?.['minlength']?.requiredLength }} characters long
+          </div>
+        </div>
+          
+        <a href="#">Forget Your Password?</a>
+        <button type="button" (click)="onLogin()">Sign In</button>
+        <div *ngIf="error" class="error-message">{{ error }}</div>
+        <div *ngIf="isLoading" class="loading-spinner"></div>
+    </form>
+  </div>
+
+  <div class="toggle-container">
+    <div class="toggle">
+      <div class="toggle-panel toggle-left">
+        <h1>Welcome Back!</h1>
+        <p>Enter your personal details to use all of site features</p>
+        <button class="hidden" (click)="deactivateContainer()">Sign In</button>
+        <img src="../../../assets/image/img-1.svg" alt="img-1">
+      </div>
+      <div class="toggle-panel toggle-right">
+        <h1>Hello, Friend!</h1>
+        <p>Register with your personal details to use all of site features</p>
+        <button class="hidden" (click)="activateContainer()">Sign Up</button>
+        <img src="../../../assets/image/img-2.svg" alt="img-2">
+      </div>
+    </div>
+  </div>
 </div>
 
-  
