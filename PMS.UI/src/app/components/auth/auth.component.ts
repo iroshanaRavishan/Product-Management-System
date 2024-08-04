@@ -16,6 +16,7 @@ export class AuthComponent implements OnInit {
   isLoading = false;
   error: string = '';
   isActive = false;
+  errorList: string = ''; 
 
   constructor(private authService: AuthService, private formBuilder: FormBuilder, private router: Router) { }
 
@@ -36,6 +37,7 @@ export class AuthComponent implements OnInit {
   
   onLogin() {
     if (!this.loginForm.valid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
@@ -46,12 +48,14 @@ export class AuthComponent implements OnInit {
     this.authService.login(email, password).subscribe(
       resData => {
         console.log("Login response", resData);
-        this.isLoading = false;
         if (resData.isSuccess) {
+          this.isLoading = false;
+          this.loginForm.reset();
           this.router.navigate(["/products"]);
         } else {
           console.log('Sign in response',resData);
           this.error = resData.message;
+          this.isLoading = false;
         }
       },
       errorMessage => {
@@ -59,21 +63,11 @@ export class AuthComponent implements OnInit {
         this.isLoading = false;
       }
     );
-    this.loginForm.reset();
-  }
-
-  activateContainer() {
-    this.isActive = true;
-    this.error = '';
-  }
-
-  deactivateContainer() {
-    this.isActive = false;
-    this.error = '';
   }
 
   onSignUp() {
     if (!this.signUpForm.valid) {
+      this.signUpForm.markAllAsTouched();
       return;
     }
 
@@ -83,24 +77,50 @@ export class AuthComponent implements OnInit {
     const password = this.signUpForm.value.password;
     const confirmPassword = this.signUpForm.value.confirmPassword;
     this.isLoading = true;
+    this.errorList = '';
 
-    this.authService.signUp(firstName, lastName, email, password, confirmPassword).subscribe(
-      resData => {
-        if (resData.isSuccess) {
-          this.isLoading = false;
-          console.log('Sign in response',resData);
-          this.deactivateContainer();
-        } else {
-          console.log('Sign in response',resData);
-          this.error = resData.message;
+    if (password == confirmPassword) {
+      this.authService.signUp(firstName, lastName, email, password, confirmPassword).subscribe(
+        resData => {
+          if (resData.isSuccess) {
+            this.isLoading = false;
+            console.log('Sign in response',resData);
+            this.signUpForm.reset();
+            this.deactivateContainer();
+          } else {
+            console.log('Sign in response',resData);
+            this.error = resData.message;
+            if (Array.isArray(resData.errors) && resData.errors.length > 0) {
+              this.errorList = '<ul>';
+              resData.errors.forEach(item => {
+                this.errorList += `<li>${item}</li>`;
+              });
+              this.errorList += '</ul>';
+            }
+            this.isLoading = false;
+          }
+        },
+        errorMessage => {
+          this.error = errorMessage;
           this.isLoading = false;
         }
-      },
-      errorMessage => {
-        this.error = errorMessage;
-        this.isLoading = false;
-      }
-    );
-    this.signUpForm.reset();
+      );
+    }
+    else {
+      this.error = 'Passwords are not matching!';
+      this.isLoading = false;
+    }
+  }
+
+  activateContainer() {
+    this.isActive = true;
+    this.error = '';
+    this.signUpForm.markAsUntouched();
+  }
+
+  deactivateContainer() {
+    this.isActive = false;
+    this.error = '';
+    this.loginForm.markAsUntouched();
   }
 }

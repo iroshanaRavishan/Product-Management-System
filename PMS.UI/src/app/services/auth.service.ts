@@ -23,7 +23,7 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('Login error', error);
-        return throwError(error);
+        return throwError("Something went wrong! Check your connection");
       })
     );
   }
@@ -32,6 +32,10 @@ export class AuthService {
     return this.http.post<UserResponse>(`${this.base_url}/api/auth/register`, { firstName, lastName, email, password ,confirmPassword }, { withCredentials: true }).pipe(
       tap((res) => {
         
+      }),
+      catchError(error => {
+        console.error('Login error', error);
+        return throwError("Something went wrong! Check your connection");
       })
     );
   }

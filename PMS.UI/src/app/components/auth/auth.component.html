@@ -40,8 +40,14 @@
         <div *ngIf="signUpForm.get('confirmPassword')!.errors?.['required']">*Confirm Password is required</div>
         <div *ngIf="signUpForm.get('confirmPassword')!.errors?.['mustMatch']">*Passwords must match</div>
       </div>
-      <button type="button" (click)="onSignUp()">Sign Up</button>
-      <div *ngIf="error" class="error-message">{{ error }}</div>
+      <button type="button" (click)="onSignUp()" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Sign Up</span>
+        <div *ngIf="isLoading" class="loading-spinner"></div>
+      </button>
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+        <div [innerHTML]="errorList"></div>
+      </div>
     </form>
   </div>
 
@@ -66,9 +72,11 @@
         </div>
           
         <a href="#">Forget Your Password?</a>
-        <button type="button" (click)="onLogin()">Sign In</button>
+        <button type="button" (click)="onLogin()" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Sign In</span>
+          <div *ngIf="isLoading" class="loading-spinner"></div>
+        </button>
         <div *ngIf="error" class="error-message">{{ error }}</div>
-        <div *ngIf="isLoading" class="loading-spinner"></div>
     </form>
   </div>
 
