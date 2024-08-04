@@ -18,11 +18,13 @@ namespace PMS.API.Services
             _configuration = configuration;
 
         }
+        
         public async Task<UserManagerResponse> RegisterUserAsync(SignUpModel model)
         {
             if (model == null)
                 throw new NullReferenceException("Register Model is null!");
-
+            
+            //Checking if passwords are matching
             if (model.Password != model.ConfirmPassword)
                 return new UserManagerResponse
                 {
@@ -30,11 +32,21 @@ namespace PMS.API.Services
                     IsSuccess = false,
                 };
 
+            // Checking if the email is already in use
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Email is already in use!",
+                    IsSuccess = false,
+                };
+            }
+
             var identityUser = new IdentityUser
             {
                 Email = model.Email,
                 UserName = model.FirstName + model.LastName,
-
             };
 
             var result = await _userManager.CreateAsync(identityUser, model.Password);

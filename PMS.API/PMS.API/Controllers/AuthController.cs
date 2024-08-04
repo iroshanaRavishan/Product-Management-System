@@ -49,8 +49,8 @@ namespace PMS.API.Controllers
 
                     return Ok(result);
                 }
-
-                return BadRequest(result);
+                // sending OK to catch the Message, Change this to Bad request
+                return Ok(result);
 
             }
             return BadRequest("Something went wrong!");

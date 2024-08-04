@@ -17,6 +17,7 @@ namespace PMS.API.Models
         public string Password { get; set; }
         [Required]
         [StringLength(12, MinimumLength = 5)]
+        [Compare(nameof (Password))]
         public string ConfirmPassword { get; set; }
     }
 }
